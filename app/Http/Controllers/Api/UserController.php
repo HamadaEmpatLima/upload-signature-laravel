@@ -7,6 +7,7 @@ use App\Http\Requests\UserRequest;
 use App\Repositories\UserRepository;
 use App\Services\FileService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -19,13 +20,15 @@ class UserController extends Controller
         $this->fileService = new FileService;
     }
 
-    public function index()
+    public function me()
     {
-        $users = $this->userRepository->getAll();
+        $user = Auth::user();
+
+        $user = $this->userRepository->me($user->id);
 
         return response()->json([
             'status' => 'success',
-            'data'   => $users
+            'data'   => $user
         ]);
     }
 

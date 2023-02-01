@@ -22,14 +22,6 @@ Route::get('/register', function () {
     return view('auth.register.index');
 })->name('register');
 
-Route::get('/document', function () {
-    return view('document.index');
-})->name('document.index');
-
-Route::get('/profile', function () {
-    return view('profile.index');
-})->name('profile.index');
-
 Route::post('api/auth/signin', [App\Http\Controllers\Api\AuthController::class, 'signin'])->name('api.auth.signin');
 Route::post('api/auth/register', [App\Http\Controllers\Api\AuthController::class, 'register'])->name('api.auth.register');
 Route::get('api/verify-email/{token}', [App\Http\Controllers\Api\AuthController::class, 'verifyToken'])->name('api.verify.email');
@@ -48,7 +40,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('api/document/{id?}', [App\Http\Controllers\Api\DocumentController::class, 'update'])->name('api.document.update');
     Route::delete('api/document/{id}', [App\Http\Controllers\Api\DocumentController::class, 'destroy'])->name('api.document.delete');
 
-    Route::get('api/user', [App\Http\Controllers\Api\UserController::class, 'index'])->name('api.user.index');
+    Route::get('/profile', function () {
+        return view('profile.index');
+    })->name('profile.index');
+    Route::get('api/user/me', [App\Http\Controllers\Api\UserController::class, 'me'])->name('api.user.me');
     Route::get('api/user/{id}', [App\Http\Controllers\Api\UserController::class, 'find'])->name('api.user.find');
     Route::patch('api/user/{id}', [App\Http\Controllers\Api\UserController::class, 'update'])->name('api.user.update');
     Route::delete('api/user/{id}', [App\Http\Controllers\Api\UserController::class, 'destroy'])->name('api.user.delete');

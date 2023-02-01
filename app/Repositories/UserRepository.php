@@ -55,4 +55,9 @@ class UserRepository
     {
         return User::where('id', $id)->delete();
     }
+
+    public function me(int $id)
+    {
+        return User::with('profile')->where('id', $id)->first();
+    }
 }
