@@ -1,13 +1,18 @@
+@php
+    $names = explode(' ', session('name') ?? 'User');
+    $firstName = $names[0];
+@endphp
+
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
 
     <div class="sidebar">
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                <img class="img-circle elevation-2" src="https://eu.ui-avatars.com/api/?name=User&size=250"
+                <img class="img-circle elevation-2" src="https://eu.ui-avatars.com/api/?name={{ $firstName }}&size=250"
                     alt="User Image">
             </div>
             <div class="info">
-                <a href="#" class="d-block">{{ session('name') ?? 'User' }}</a>
+                <a href="#" class="d-block">{{ $firstName }}</a>
             </div>
         </div>
 

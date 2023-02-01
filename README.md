@@ -14,23 +14,9 @@ composer install
 
 Setup database in postgree then configure .env
 
-```shell
-
-php artisan migrate
-php artisan db:seed
-
-```
-
 ## Email
 
 Setup mailtrap then configure .env
-
-```shell
-
-php artisan migrate
-php artisan db:seed
-
-```
 
 ## Test
 
