@@ -45,6 +45,6 @@ Route::middleware('auth')->group(function () {
     })->name('profile.index');
     Route::get('api/user/me', [App\Http\Controllers\Api\UserController::class, 'me'])->name('api.user.me');
     Route::get('api/user/{id}', [App\Http\Controllers\Api\UserController::class, 'find'])->name('api.user.find');
-    Route::patch('api/user/{id}', [App\Http\Controllers\Api\UserController::class, 'update'])->name('api.user.update');
+    Route::patch('api/user/{id?}', [App\Http\Controllers\Api\UserController::class, 'update'])->name('api.user.update');
     Route::delete('api/user/{id}', [App\Http\Controllers\Api\UserController::class, 'destroy'])->name('api.user.delete');
 });

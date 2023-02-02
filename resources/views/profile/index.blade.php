@@ -3,6 +3,11 @@
 @section('title', 'Profile')
 @section('profile', 'active')
 
+@php
+    $names = explode(' ', session('name') ?? 'User');
+    $firstName = $names[0];
+@endphp
+
 @section('content')
     <section class="content-header">
         <div class="container-fluid">
@@ -28,12 +33,11 @@
                         <div class="card-body box-profile">
                             <div class="text-center">
                                 <img class="profile-user-img img-fluid img-circle"
-                                    src="{{ asset('assets/dist/img/user4-128x128.jpg') }}" alt="User profile picture">
+                                    src="https://eu.ui-avatars.com/api/?name={{ $firstName }}&size=128"
+                                    alt="User profile picture" id="picture">
                             </div>
 
-                            <h3 class="profile-username text-center">Nina Mcintire</h3>
-
-                            <p class="text-muted text-center">Software Engineer</p>
+                            <br>
 
                             <ul class="list-group list-group-unbordered mb-3">
                                 <li class="list-group-item">
@@ -56,27 +60,63 @@
                         </div>
                         <div class="card-body">
                             <strong><i class="fas fa-book mr-1"></i> Company</strong>
-
-                            <p class="text-muted">
-                                PT Serbaguna
+                            <p class="text-muted" id="company">
+                                Loading...
                             </p>
-
                             <hr>
-
                             <strong><i class="fas fa-map-marker-alt mr-1"></i> Division</strong>
-
-                            <p class="text-muted">
-                                IT
+                            <p class="text-muted" id="division">
+                                Loading...
                             </p>
-
                         </div>
                     </div>
-
+                    <button onclick="editData()" class="btn btn-primary float-right">Update Profile</button>
                 </div>
             </div>
         </div>
     </section>
 @endsection
+
+@push('modals')
+    <div class="modal fade" id="modal-default">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit Profile</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" enctype="multipart/form-data" id="form-profile">
+                        @csrf
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="company">Company</label>
+                                <input type="string" class="form-control" placeholder="Company" name="company"
+                                    id="company">
+                            </div>
+                            <div class="form-group">
+                                <label for="division">Division</label>
+                                <input type="string" class="form-control" placeholder="Division" name="division"
+                                    id="division">
+                            </div>
+                            <div class="form-group">
+                                <label for="picture">Picture</label>
+                                {{-- <input type="file" class="form-control" name="picture" id="picture_file"> --}}
+                                <input type="file" class="form-control" id="picture_file" name="picture_file">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary" onclick="storeData()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endpush
 
 @push('js')
     {{-- Axios --}}
@@ -84,6 +124,7 @@
 
     {{-- Endpoints --}}
     <input type="hidden" name="route-profile-me" id="route-profile-me" value="{{ route('api.user.me') }}">
+    <input type="hidden" name="route-profile-update" id="route-profile-update" value="{{ route('api.user.update') }}">
 @endpush
 
 @include('layouts.script')
@@ -110,10 +151,32 @@
                     $('#name').html(data['name']);
                     $('#email').html(data['email']);
                     $('#phone').html(data['phone']);
+
+                    if (!data.profile) {
+                        $('#company').html('Not Set');
+                        $('#division').html('Not Set');
+                    } else {
+                        $('#company').html(data.profile.company);
+                        $('#division').html(data.profile.division);
+                        if (data.profile.picture) {
+                            $('#picture').attr('src', data.profile.picture);
+
+                            $('input[name="picture"]').val(data.profile.picture);
+                        }
+
+                        $('input[name="company"]').val(data.profile.company);
+                        $('input[name="division"]').val(data.profile.division);
+                    }
                 }
             } catch (error) {
                 console.log(error.message);
             }
+        }
+
+        function editData() {
+            action = 'edit';
+
+            $('#modal-default').modal('show');
         }
 
         async function storeData() {
@@ -124,32 +187,23 @@
             $('#submitBtn').attr('disabled', true);
             $('#submitBtn').html('Loading...');
 
-            const form = $('#form-document');
-
+            const form = $('#form-profile');
             const formData = new FormData();
 
-            let content = $('#content')[0];
-            content = content.files[0] || '';
-            let signin = $('#signin')[0];
-            signin = signin.files[0] || '';
+            let picture = $('#picture_file').prop('files')[0];
 
-            formData.append("title", $('#title').val());
-            formData.append("content", content);
-            formData.append("signin64", $('#signin64').val());
-            formData.append("signin", signin);
+            formData.append('company', $('input[name="company"]').val());
+            formData.append('division', $('input[name="division"]').val());
+            formData.append('picture', picture);
+            formData.append('_method', 'PATCH');
+
+            console.log(formData);
 
             if (action === 'edit') {
-                updateData();
+                const result = await axios.post($('#route-profile-update').val(), formData);
+                location.reload();
             } else {
-                try {
-                    const result = await axios.post($('#route-document-store').val(), formData);
-                    // swal('Success :)', 'Order berhasil dibuat!', 'success');
-                    // location.reload();
-                } catch (error) {
-                    if (error.response.status === 422) {
-                        setErrors(error, form);
-                    }
-                }
+                // 
             }
             $('#submitBtn').attr('disabled', false);
             $('#submitBtn').html('Submit');

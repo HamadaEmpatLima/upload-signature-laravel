@@ -52,9 +52,10 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(UserRequest $request, int $id)
+    public function update(UserRequest $request, int $id = null)
     {
         $formData = $request->all();
+        $id = Auth::user()->id;
         $user = $this->userRepository->find($id);
         if (!$user) {
             return response()->json([
@@ -64,7 +65,7 @@ class UserController extends Controller
         }
 
         if ($request->hasFile('picture')) {
-            $formData['picture'] = $this->fileService->storeReturnUrl($request->content, 'picture', 'picture');
+            $formData['picture'] = $this->fileService->storeReturnUrl($request->picture, 'picture', 'picture');
             if ($user->picture) {
                 $this->fileService->destroyByUrl($user->picture);
             }

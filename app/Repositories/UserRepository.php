@@ -46,7 +46,9 @@ class UserRepository
         if ($user) {
             $user->update($formData);
             $user->save();
-            UserProfile::where('user_id', $id)->update($formData);
+            UserProfile::updateOrCreate([
+                'user_id' => $id
+            ], $formData);
         }
         return $user;
     }
